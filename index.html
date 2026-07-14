@@ -1498,7 +1498,7 @@ function computeSeason(){
   let dd=jogos-v-e; if(dd<0){e+=dd;dd=0;}
   const gp=Math.round(v*2.0+e+dd*0.6+R(0,6));
   const gc=Math.round(dd*1.9+e+v*0.5+R(0,6));
-  seasonTmp={div,jogos,v,e,d:dd,gp,gc,pos,titFlags:[],acesso:false,rebaix:false,campeao:false,demanda:null};
+  seasonTmp={div,jogos,v,e,d:dd,gp,gc,pos,titFlags:[],acesso:false,rebaix:false,campeao:false,demanda:null,club:G.club.slice()};
   const nAcesso=div==='D'?6:4, nRebaix=4, total=curLeague().length;
   if(!isIntl(G.club)&&div!=='A'&&pos<=nAcesso)seasonTmp.acesso=true;
   if(pos===1)seasonTmp.campeao=true;
@@ -1955,68 +1955,80 @@ function nomeJog(){return pick(['Kaio','Léo','Vitinho','Rael','Juninho','Marcel
 /* ============ FECHAMENTO DE TEMPORADA + ACESSO/REBAIXAMENTO ============ */
 function resolveSeason(){
   const s=seasonTmp,div=s.div;
+  // clube que REALMENTE disputou a temporada (pode ter havido transferência no fim do ciclo)
+  const played=(s.club&&s.club.length)?s.club:G.club;
+  const moved=G.club[0]!==played[0];          // trocou de clube antes de fechar a temporada?
+  const playedIntl=isIntl(played);
+  const clubNome=played[0];
+  // estatísticas de carreira sempre contam
   G.j+=s.jogos;G.v+=s.v;G.e+=s.e;G.d+=s.d;G.gp+=s.gp;G.gc+=s.gc;
-  G.board=clamp(G.board+s.boardDelta,0,100);
+  if(!moved)G.board=clamp(G.board+s.boardDelta,0,100);
   let celTitle=null,celSub=null;
-  const ligaNome=divLabel(G.club);
+  const ligaNome=divLabel(played);
   if(s.campeao){
-    if(isIntl(G.club)){
+    if(playedIntl){
       G.tit.intl=(G.tit.intl||0)+1;s.titFlags.push(t('cel_camp_nac',ligaNome));
       G.tit.intlBy=G.tit.intlBy||{};G.tit.intlBy[ligaNome]=(G.tit.intlBy[ligaNome]||0)+1;
       addHonra(t('hon_camp_nac',ligaNome),18);
-      celTitle=t('cel_camp_nac',paisNome(G.club[3]));
+      celTitle=t('cel_camp_nac',paisNome(played[3]));
     }else{
       G.tit[div]++;s.titFlags.push(t('hon_camp_div',DIVNOME[div]));
       addHonra(t('hon_camp_div',DIVNOME[div]),div==='A'?30:div==='B'?14:div==='C'?10:7);
       celTitle=(div==='A'?t('cel_camp_br'):t('cel_camp_div',DIVNOME[div]));
     }
-    G.board=clamp(G.board+10,0,100);celSub=G.club[0]+' — '+G.year;
+    if(!moved)G.board=clamp(G.board+10,0,100);
+    celSub=clubNome+' — '+G.year;
   }
   const meta={A:14,B:6,C:4,D:8}[div];
   if(s.pos<meta||s.campeao)addHonra(t('hon_melhor',ligaNome),4);
-  // avaliação da meta cobrada pela diretoria
+  // avaliação da meta cobrada pela diretoria (só afeta a confiança se você continuou no clube)
   let demTxt='';
-  if(s.demanda){
+  if(s.demanda&&!moved){
     const bateu=s.campeao||s.acesso||s.pos<=s.demanda.alvoN||(s.demanda.risco&&!s.rebaix);
     if(s.demanda.assumida){
       if(bateu){G.board=clamp(G.board+12,0,100);G.metas++;addHonra(t('hon_meta'),4);demTxt=t('season_meta_ok');}
       else{G.board=clamp(G.board-16,0,100);G.tension=true;demTxt=t('season_meta_fail');}
     }else{ if(bateu)G.board=clamp(G.board+4,0,100); else G.board=clamp(G.board-6,0,100); }
   }
-  // verba da temporada (cresce com a divisão e a confiança)
-  G.verba=clamp(G.verba+{D:3,C:6,B:14,A:34}[div]+Math.round(G.board/12),0,400);
+  // verba da temporada (não se aplica se você trocou de clube — o novo já veio com verba própria)
+  if(!moved)G.verba=clamp(G.verba+{D:3,C:6,B:14,A:34}[div]+Math.round(G.board/12),0,400);
   let movedTxt='';
   if(s.acesso){G.acessos++;addHonra(t('hon_acesso'),6);
-    const novo=DIVS[clamp(DIVIDX(div)+1,0,3)];G.club[1]=novo;G.club[2]=clamp(G.club[2]+R(3,6),44,95);
-    movedTxt=t('season_acesso',DIVNOME[novo]);G.board=clamp(G.board+8,0,100);syncSquad();
-    if(!celTitle){celTitle=t('cel_acesso',DIVNOME[novo]);celSub=t('cel_acesso_sub',G.club[0]);}}
-  else if(s.rebaix){G.rebaix++;const novo=DIVS[clamp(DIVIDX(div)-1,0,3)];G.club[1]=novo;G.club[2]=clamp(G.club[2]-R(2,5),42,95);
-    movedTxt=t('season_rebaix',DIVNOME[novo]);G.board=clamp(G.board-14,0,100);syncSquad();}
+    const novo=DIVS[clamp(DIVIDX(div)+1,0,3)];
+    // só promove o clube se você AINDA estiver nele; se saiu, o acesso fica no currículo mas não altera o novo clube
+    if(!moved){G.club[1]=novo;G.club[2]=clamp(G.club[2]+R(3,6),44,95);G.board=clamp(G.board+8,0,100);syncSquad();}
+    movedTxt=t('season_acesso',DIVNOME[novo]);
+    if(!celTitle){celTitle=t('cel_acesso',DIVNOME[novo]);celSub=t('cel_acesso_sub',clubNome);}}
+  else if(s.rebaix){G.rebaix++;const novo=DIVS[clamp(DIVIDX(div)-1,0,3)];
+    if(!moved){G.club[1]=novo;G.club[2]=clamp(G.club[2]-R(2,5),42,95);G.board=clamp(G.board-14,0,100);syncSquad();}
+    movedTxt=t('season_rebaix',DIVNOME[novo]);}
   // === PRESSÃO POR TAMANHO DO CLUBE: em gigantes, só títulos seguram a confiança ===
   let presTxt='';
-  const st=clubStature();
-  const wonSilver=s.campeao||s.t_copa||s.t_liberta||s.t_champions;
-  if(st>=1&&!wonSilver){
-    const flopou=s.pos>=meta; // não brigou pelo topo
-    let pen=0;
-    if(st===3)pen=flopou?14:8;        // gigante: temporada sem taça pesa muito
-    else if(st===2)pen=flopou?8:3;    // grande: cobrança forte
-    else if(st===1)pen=flopou?4:0;    // tradicional: só pune campanha ruim
-    if(pen>0){G.board=clamp(G.board-pen,0,100);presTxt=' · '+t('season_pres');}
+  if(!moved){
+    const st=clubStature();
+    const wonSilver=s.campeao||s.t_copa||s.t_liberta||s.t_champions;
+    if(st>=1&&!wonSilver){
+      const flopou=s.pos>=meta; // não brigou pelo topo
+      let pen=0;
+      if(st===3)pen=flopou?14:8;        // gigante: temporada sem taça pesa muito
+      else if(st===2)pen=flopou?8:3;    // grande: cobrança forte
+      else if(st===1)pen=flopou?4:0;    // tradicional: só pune campanha ruim
+      if(pen>0){G.board=clamp(G.board-pen,0,100);presTxt=' · '+t('season_pres');}
+    }
   }
   let d=0;
   if(s.campeao)d+=1; else if(s.acesso)d+=1; else if(s.pos<meta)d+=1;
-  if(s.rebaix)d-=2; if(s.pos>curLeague().length-3&&!s.rebaix)d-=1;
+  if(s.rebaix)d-=2; if(!moved&&s.pos>curLeague().length-3&&!s.rebaix)d-=1;
   // desgaste gradual da idade: a partir dos 65 a reputação/energia cai mais rápido
   if(G.age>=70)d-=2; else if(G.age>=65)d-=1;
   G.ovr=clamp(G.ovr+d,45,90);
   const posTxt=s.campeao?t('season_camp',ligaNome):t('season_pos',s.pos,ligaNome);
-  G.seasons.push({y:G.year,age:G.age,club:G.club[0],div:isIntl(G.club)?G.club[3]:div,pos:s.pos,campeao:s.campeao,acesso:s.acesso,rebaix:s.rebaix,
+  G.seasons.push({y:G.year,age:G.age,club:clubNome,div:playedIntl?played[3]:div,pos:s.pos,campeao:s.campeao,acesso:s.acesso,rebaix:s.rebaix,
     j:s.jogos,v:s.v,e:s.e,d:s.d,tit:s.titFlags.slice(),board:G.board});
   // variação de confiança da temporada: mostra o peso das decisões do treinador
   const dBoard=G.board-(G._boardStart!=null?G._boardStart:G.board);
-  const confTxt=dBoard!==0?t('season_conf',dBoard):'';
-  logSeason('<span>'+G.year+' · '+G.club[0]+'</span><b>'+posTxt+(movedTxt?' · '+movedTxt:'')+demTxt+(s.t_copa?' · '+t('cdb'):'')+(s.t_liberta?' · '+t('liberta_s'):'')+(s.t_champions?' · '+t('ucl_s'):'')+presTxt+confTxt+'</b>');
+  const confTxt=(!moved&&dBoard!==0)?t('season_conf',dBoard):'';
+  logSeason('<span>'+G.year+' · '+clubNome+'</span><b>'+posTxt+(movedTxt?' · '+movedTxt:'')+demTxt+(s.t_copa?' · '+t('cdb'):'')+(s.t_liberta?' · '+t('liberta_s'):'')+(s.t_champions?' · '+t('ucl_s'):'')+presTxt+confTxt+'</b>');
   marcoQueue=[];collectMarcos();
   G.year++;G.age++;updateHub();
   // comemoração de título/acesso e então segue pros marcos + fim do turno
