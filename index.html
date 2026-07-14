@@ -346,6 +346,8 @@ input:focus,select:focus{border-color:var(--edge);box-shadow:4px 4px 0 var(--edg
   <h1 class="logo disp">O <span>MÍSTER</span></h1>
   <div class="sub" data-i18n="sub_setup">Roube o DNA de técnicos lendários, assuma clubes do zero e construa uma dinastia. Você será O Míster?</div>
 
+  <div id="resumeBox"></div>
+
   <div class="card">
     <div class="lbl" data-i18n="lbl_nome">Nome do treinador</div>
     <input type="text" id="inNome" maxlength="18" placeholder="Seu nome no banco">
@@ -533,6 +535,8 @@ const I18N={
   dif_am:'AMADOR', dif_am_sub:'atributos visíveis no draft',
   dif_pro:'PROFISSIONAL', dif_pro_sub:'atributos ocultos — risco total',
   hist_title:'Suas carreiras', btn_montar:'Montar comissão',
+ resume_title:'Carreira em andamento', resume_continue:'Continuar carreira', resume_discard:'Descartar e começar do zero',
+ resume_info:(clube,ano,n)=>'Carreira #'+n+' · '+clube+' · '+ano, resume_confirm:'Descartar a carreira em andamento? Esta ação não pode ser desfeita.',
   eyebrow_draft:'Draft de mentores', draft_aula:(r)=>'Aula '+r+'/8',
   btn_reroll:(n)=>'🎲 Sortear outros mentores — restam '+n,
   slot_ini:'?', slot_escolha:'Escolha seu mentor',
@@ -679,6 +683,8 @@ I18N.es={
   dif_am:'AMATEUR', dif_am_sub:'atributos visibles en el draft',
   dif_pro:'PROFESIONAL', dif_pro_sub:'atributos ocultos — riesgo total',
   hist_title:'Tus carreras', btn_montar:'Formar cuerpo técnico',
+ resume_title:'Carrera en curso', resume_continue:'Continuar carrera', resume_discard:'Descartar y empezar de cero',
+ resume_info:(clube,ano,n)=>'Carrera #'+n+' · '+clube+' · '+ano, resume_confirm:'¿Descartar la carrera en curso? Esta acción no se puede deshacer.',
   eyebrow_draft:'Draft de mentores', draft_aula:(r)=>'Clase '+r+'/8',
   btn_reroll:(n)=>'🎲 Sortear otros mentores — quedan '+n,
   slot_ini:'?', slot_escolha:'Elige tu mentor',
@@ -823,6 +829,8 @@ I18N.en={
   dif_am:'AMATEUR', dif_am_sub:'attributes visible in the draft',
   dif_pro:'PROFESSIONAL', dif_pro_sub:'hidden attributes — full risk',
   hist_title:'Your careers', btn_montar:'Build your staff',
+ resume_title:'Career in progress', resume_continue:'Continue career', resume_discard:'Discard and start over',
+ resume_info:(clube,ano,n)=>'Career #'+n+' · '+clube+' · '+ano, resume_confirm:'Discard the career in progress? This cannot be undone.',
   eyebrow_draft:'Mentor draft', draft_aula:(r)=>'Lesson '+r+'/8',
   btn_reroll:(n)=>'🎲 Draw other mentors — '+n+' left',
   slot_ini:'?', slot_escolha:'Choose your mentor',
@@ -1179,6 +1187,49 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function store(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v));}catch(e){return null}}
 
+/* ===== SAVE EM ANDAMENTO (retomar de onde parou) ===== */
+const SAVE_KEY='mister_br_save';
+function saveProgress(){
+  try{
+    if(!G||G.over)return;                       // não salva carreira encerrada
+    const log=$('seasonLog')?$('seasonLog').innerHTML:'';
+    localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,ts:Date.now(),lang:LANG,log:log,G:G}));
+  }catch(e){}
+}
+function loadProgress(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'null');}catch(e){return null;}}
+function clearProgress(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+function resumeCareer(){
+  const s=loadProgress();if(!s||!s.G)return;
+  G=s.G;
+  if(s.lang&&s.lang!==LANG)setLang(s.lang);
+  if(!G.squad&&G.mode!=='nt')syncSquad();       // reconstrói elenco se faltar (saves antigos)
+  updateHub();
+  if($('seasonLog')&&s.log!=null)$('seasonLog').innerHTML=s.log;
+  show('scr-hub');
+}
+function renderResume(){
+  const box=$('resumeBox');if(!box)return;
+  const s=loadProgress();
+  if(!s||!s.G){box.innerHTML='';return;}
+  const g=s.G,nome=g.nome||'MÍSTER';
+  const clube=(g.mode==='nt'&&g.nt)?('🎽 '+g.nt.nome):(g.club?g.club[0]:'');
+  box.innerHTML='<div class="card" style="border:2px solid var(--acc)">'
+    +'<div class="lbl" style="color:var(--acc)">'+t('resume_title')+'</div>'
+    +'<div class="disp" style="font-size:20px">'+nome+'</div>'
+    +'<div class="small" style="margin:2px 0 10px">'+t('resume_info',clube,g.year,g.careerN)+'</div>'
+    +'<button class="btn" onclick="resumeCareer()">'+t('resume_continue')+'</button>'
+    +'<button class="btn ghost mini" style="margin-top:8px" onclick="discardProgress()">'+t('resume_discard')+'</button>'
+    +'</div>';
+}
+function discardProgress(){
+  if(!confirm(t('resume_confirm')))return;
+  clearProgress();renderResume();
+}
+/* autosave ao sair/minimizar a página */
+window.addEventListener('beforeunload',saveProgress);
+window.addEventListener('pagehide',saveProgress);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveProgress();});
+
 let G=null;
 let cfg={nome:'',reg:REGIOES[0],filo:'EQU',dif:'am'};
 let draft={i:0,rr:2,cur:null,spinning:false,vals:{},from:{}};
@@ -1202,6 +1253,7 @@ function applyStaticI18n(){
   if($('filoGrid2').children.length)buildFilo('filoGrid2',cfg.filo,f=>{cfg.filo=f;refreshClubScreen(true);});
   updateDraftTexts();
   renderHist();
+  renderResume();
   if(G)updateHub();
 }
 function updateDraftTexts(){
@@ -1218,6 +1270,7 @@ function initSetup(){
     cfg.dif=o.dataset.d;$('difGrid').querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');
   });
   applyStaticI18n();
+  renderResume();
 }
 function buildFilo(id,sel,cb){
   const g=$(id);g.innerHTML='';
@@ -1376,6 +1429,7 @@ function updateHub(){
   $('hbStatus').innerHTML=boardStatus();
   if(G.mode==='nt'&&G.nt)$('expPill').textContent=t('nt_hub_meta',ntCompName(tournamentOf(G.year,G.nt.conf)));
   else $('expPill').textContent=(isIntl(G.club)?(continente(G.club)==='EUR'?t('pill_intl_eur'):t('pill_intl_sam')):expectByDiv(G.club[1]))+pressTag();
+  saveProgress();   // autosave a cada retorno ao hub
 }
 /* nível de pressão da torcida/diretoria conforme o tamanho do clube */
 function pressTag(){
@@ -2025,9 +2079,11 @@ function rankQuote(idx){return tt('ranks_q')[idx];}
 function endCareer(motivo){
   const sc=careerScore();const idx=rankFor(sc);
   G.rankIdx=idx;G.rank=rankName(idx);G.quote=rankQuote(idx);G.score=sc;G.motivo=motivo;
+  G.over=true;
   const hist=store('mister_br_hist')||[];
   hist.push({n:G.careerN,nome:G.nome,rankIdx:idx,rank:G.rank,tit:titTot(),j:G.j});
   store('mister_br_hist',hist);
+  clearProgress();          // carreira concluída: remove o save em andamento
   renderOver();show('scr-over');
 }
 function renderOver(){
@@ -2043,7 +2099,7 @@ function renderOver(){
   const bars=[[L.jogos,G.j,TETOS.jogos],[L.vit,G.v,TETOS.vit],[L.tit,titTot(),TETOS.titulos],[L.ucl,G.tit.champions||0,TETOS.champions],[L.lib,G.tit.liberta||0,TETOS.liberta]];
   $('ovLegado').innerHTML=bars.map(b=>'<div class="legbar"><div class="t"><span>'+b[0]+'</span><span class="mono">'+b[1]+'/'+b[2]+'</span></div><div class="bar"><div class="fill" style="width:'+clamp(b[1]/b[2]*100,2,100)+'%"></div></div></div>').join('');
 }
-function backHome(){renderHist();show('scr-setup');}
+function backHome(){renderHist();renderResume();show('scr-setup');}
 /* ============ CARD (CANVAS) ============ */
 /* ============ ELENCO ============ */
 function openSquad(){
