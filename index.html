@@ -13,12 +13,11 @@
   --bg:#efeee9; --panel:#ffffff; --panel2:#ffffff; --line:#dcdad2;
   --txt:#0b0b0b; --mut:#6f6f6a;
   --acc:#0b0b0b; --acc2:#0b0b0b; --ink:#ffffff; --edge:#0b0b0b;
-  --pink:#0b0b0b;
   --rit:#3a3a3a; --fin:#1e1e1e; --pas:#111111; --dri:#4a4a4a;
   --def:#2c2c2c; --fis:#3f3f3f; --sm:#1a1a1a; --wf:#565656;
   --ok:#0b0b0b; --bad:#9a9a9a;
   /* acentos de cor (usados só em momentos festivos e sinais de leitura) */
-  --gold:#e8b23a; --win:#1f9d57; --loss:#d23b3b;
+  --gold:#e8b23a; --win:#1f9d57;
   --font-disp:'Archivo Black','Arial Black',sans-serif;
   --font-body:'Inter','Segoe UI',Roboto,Arial,sans-serif;
 }
@@ -52,7 +51,6 @@ input[type=text],select{
 }
 input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,123,255,.22)}
 .grid{display:grid;gap:8px}
-.g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g5{grid-template-columns:repeat(5,1fr)}
 .opt{
   background:rgba(8,16,38,.6);border:1px solid var(--line);border-radius:12px;color:var(--txt);
   padding:10px 4px;text-align:center;font-weight:600;font-size:13px;cursor:pointer;user-select:none;transition:border-color .12s,background .12s,box-shadow .12s
@@ -60,7 +58,6 @@ input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,12
 .opt small{display:block;font-weight:400;font-size:9px;color:var(--mut);margin-top:2px}
 .opt.sel{background:linear-gradient(180deg,var(--acc2),var(--acc));border-color:transparent;color:#fff;box-shadow:0 8px 20px -8px rgba(47,123,255,.7)}
 .opt.sel small{color:rgba(255,255,255,.82)}
-.opt.dis{opacity:.35;pointer-events:none}
 .tag{display:inline-block;font-size:9px;background:var(--acc);color:#fff;border-radius:5px;padding:1px 5px;font-weight:700;vertical-align:middle}
 .cta{
   position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
@@ -122,9 +119,6 @@ input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(47,12
 .mcard h3{font-family:var(--font-disp);font-size:26px;font-weight:400;text-transform:uppercase;letter-spacing:.01em;margin-bottom:8px}
 .mcard p{color:var(--mut);font-size:14px;line-height:1.55;margin-bottom:16px}
 .mcard .btns{display:flex;flex-direction:column;gap:8px}
-.match-log{text-align:left;background:rgba(8,16,38,.6);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:13px;max-height:200px;overflow:auto;margin-bottom:12px}
-.match-log div{padding:3px 0;border-bottom:1px dashed var(--line)}
-.match-log div:last-child{border:none}
 .score{font-family:var(--font-disp);font-size:44px;font-weight:400;margin:6px 0}
 /* ---- FIM ---- */
 .rank-hero{text-align:center;padding:22px 10px 14px}
@@ -200,12 +194,13 @@ svg text{font-family:'Space Grotesk','Segoe UI',sans-serif}
 </style>
 
 <style>
-.draft-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:6px 0 12px}
-.dopt{background:rgba(8,16,38,.6);border:1px solid var(--line);border-radius:14px;padding:12px 5px;text-align:center;cursor:pointer;transition:transform .08s,border-color .12s,box-shadow .12s}
+  .draft-opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 12px}
+  .dopt{background:rgba(8,16,38,.6);border:1px solid var(--line);border-radius:14px;padding:12px 5px;text-align:center;cursor:pointer;min-width:0;transition:transform .08s,border-color .12s,box-shadow .12s}
 .dopt:active{transform:translateY(1px)}
 .dopt.sel{border-color:var(--acc);background:rgba(47,123,255,.16);box-shadow:0 8px 20px -10px rgba(47,123,255,.6)}
 .dopt-nm{font-weight:600;font-size:11.5px;line-height:1.15;min-height:30px;display:flex;align-items:center;justify-content:center}
-.dopt-val{font-family:var(--font-disp);font-size:34px;font-weight:400;margin-top:2px;color:var(--acc2)}
+  .dopt-val{font-family:var(--font-disp);font-size:34px;font-weight:400;margin-top:2px;color:var(--acc2);min-height:38px;display:flex;align-items:center;justify-content:center}
+  .dopt-val.stars{font-size:16px;letter-spacing:2px;line-height:1.25;overflow-wrap:anywhere;color:var(--gold)}
 .draft-hint{font-size:12px;color:var(--mut);text-align:center;margin-bottom:8px}
 .langbar{position:fixed;top:10px;right:10px;z-index:200;display:flex;gap:3px;background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:999px;padding:3px}
 .langbar button{border:0;background:transparent;color:var(--mut);font-weight:800;font-size:11px;letter-spacing:.4px;padding:5px 9px;border-radius:999px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
@@ -220,13 +215,13 @@ svg text{font-family:'Space Grotesk','Segoe UI',sans-serif}
    sombras "carimbo" (offset sólido), tipografia Archivo Black + Inter.
    ========================================================================== */
 body{letter-spacing:-.01em}
-.screen{max-width:540px;padding:26px 18px 122px}
+.screen{max-width:540px;padding:64px 18px 122px}
 .disp{letter-spacing:0}
 
 /* ----- Cabeçalho / logo ----- */
 .eyebrow{color:var(--txt);font-weight:800;letter-spacing:.42em;display:inline-block;
   border:2px solid var(--edge);padding:5px 10px;border-radius:0;background:var(--edge);color:#fff}
-h1.logo{font-size:74px;line-height:.82;margin:14px 0 6px;letter-spacing:-.02em}
+h1.logo{font-size:clamp(46px,13.5vw,74px);line-height:.92;margin:12px 0 14px;letter-spacing:-.02em;overflow-wrap:break-word}
 h1.logo span{background:var(--edge);color:#fff;padding:0 .1em;
   -webkit-box-decoration-break:clone;box-decoration-break:clone}
 .sub{color:var(--mut);font-size:13.5px;line-height:1.5;max-width:42ch;margin-bottom:22px;
@@ -295,9 +290,8 @@ input:focus,select:focus{border-color:var(--edge);box-shadow:4px 4px 0 var(--edg
 .mcard{background:var(--panel2);border:3px solid var(--edge);border-radius:8px;
   backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:8px 8px 0 var(--edge)}
 .mcard .ico{filter:none}
-.mcard p{color:var(--mut)}
-.match-log{background:#fff;border:2px solid var(--edge);border-radius:5px}
-.score{color:var(--txt)}
+  .mcard p{color:var(--mut)}
+  .score{color:var(--txt)}
 
 /* ----- Fim de carreira ----- */
 .rank-hero .r{color:var(--txt);text-shadow:none}
@@ -887,7 +881,7 @@ I18N.en={
   fin_assistir:'Watch live ▶', fin_pular:'Skip to result ⏭',
   fin_campeao:(c)=>'CHAMPIONS of the '+c+'!', fin_vice:'The trophy slipped away in the details.',
   fin_comemorar:'🏆 Celebrate', fin_continuar:'Continue',
-  mv_postura:'Starting approach', mv_pressao:'⚔️ Full press', mv_equil:'⚖️ Balanced', mv_cautela:'🛡️ Cautious',
+  mv_postura:'Starting approach', mv_pressao:'⚔️ Full press', mv_equil:'⚖    Balanced', mv_cautela:'🛡️ Cautious',
   mv_say_pressao:'orders a high press', mv_say_equil:'starts balanced', mv_say_cautela:'asks for caution at the back',
   mv_int_vence:'Half-time · you lead', mv_segurar:'🔒 Hold the result', mv_matar:'🗡️ Kill the game off',
   mv_say_segurar:'drops back to hold the lead', mv_say_matar:'goes to kill the game off',
@@ -951,8 +945,7 @@ function t(k,...a){
   return (typeof v==='function')?v(...a):v;
 }
 function tt(k){const d=I18N[LANG]||I18N.pt;return (d[k]!==undefined?d[k]:I18N.pt[k]);}
-function divName(dv){return tt('div')[dv];}
-function filoName(f){return tt('filo')[f];}
+  function filoName(f){return tt('filo')[f];}
 function attrName(k){return tt('attr')[k];}
  function setLang(l){LANG=l;try{localStorage.setItem('mister_lang',l);}catch(e){}
    document.querySelectorAll('#langbar button').forEach(b=>b.classList.toggle('on',b.getAttribute('data-lang')===l));
@@ -1263,7 +1256,7 @@ function landRound(){
   draft.opts.forEach((o,idx)=>{
     const card=document.createElement('div');card.className='dopt';
     const val=cfg.dif==='pro'?'?':(a.star?'★'.repeat(o.val):o.val);
-    card.innerHTML='<div class="dopt-nm">'+o.lenda[0]+'</div><div class="dopt-val" style="color:'+a.c+'">'+val+'</div>';
+    card.innerHTML='<div class="dopt-nm">'+o.lenda[0]+'</div><div class="dopt-val'+(a.star?' stars':'')+'" style="color:'+a.c+'">'+val+'</div>';
     card.onclick=()=>chooseOpt(idx);
     box.appendChild(card);
   });
