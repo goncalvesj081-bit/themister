@@ -415,7 +415,10 @@ input:focus,select:focus{border-color:var(--edge);box-shadow:4px 4px 0 var(--edg
 <div class="screen" id="scr-hub">
   <div class="hub-top">
     <div>
-      <div class="eyebrow" id="hbTemp">Temporada 2026</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="eyebrow" id="hbTemp">Temporada 2026</div>
+        <button id="btnEndCareer" onclick="confirmEndCareer()" title="" style="border:1px solid var(--line);background:transparent;color:var(--mut);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:999px;cursor:pointer">⨯ <span data-i18n="end_now">Encerrar</span></button>
+      </div>
       <div class="disp" style="font-size:22px" id="hbNome"></div>
       <div class="small" id="hbClube"></div>
     </div>
@@ -449,7 +452,7 @@ input:focus,select:focus{border-color:var(--edge);box-shadow:4px 4px 0 var(--edg
 <!-- FIM -->
 <div class="screen" id="scr-over">
   <div class="rank-hero">
-    <div class="eyebrow" data-i18n="eyebrow_fim">Fim de carreira</div>
+    <div class="eyebrow" id="ovEyebrow" data-i18n="eyebrow_fim">Fim de carreira</div>
     <div class="r" id="ovRank">TÉCNICO RESPEITADO</div>
     <div class="q" id="ovQuote"></div>
     <div class="meta-line" id="ovMeta"></div>
@@ -604,7 +607,7 @@ const I18N={
   prop_tit:'Proposta na mesa',
   prop_txt:(intl,quente)=>'Clubes maiores bateram à porta'+(intl?' — inclusive de fora do país':'')+(quente?', e no seu clube a cadeira está quente':'')+'. Onde continua o projeto?',
   prop_ficar:(c)=>'Ficar no '+c,
-  fin_flavor:{champions:'A final da Champions League é o palco mais cobiçado do futebol mundial.',liberta:'A final da Libertadores é o jogo da vida de qualquer treinador sul-americano.',copa:'Uma final de Copa do Brasil não se joga toda temporada.'},
+  fin_flavor:{champions:'A final da Champions League é o palco mais cobiçado do futebol mundial.',liberta:'A final da Libertadores é o jogo da vida de qualquer treinador sul-americano.',copa:'Uma final de Copa do Brasil n  o se joga toda temporada.'},
   fin_tit:(c)=>'Final: '+c, fin_fav:(r)=>' <span class="small">(favorito: '+r+')</span>',
   fin_txt:(meu,riv,fav,flavor)=>'<b>'+meu+'</b> x <b>'+riv+'</b>'+fav+'. '+flavor+' Como você quer viver essa decisão?',
   fin_assistir:'Assistir ao vivo ▶', fin_pular:'Pular pro resultado ⏭',
@@ -633,6 +636,7 @@ const I18N={
   mc_continuar:'Continuar',
   retire_tit:'Fim de ciclo?', retire_txt:(a)=>'Você já tem <b>'+a+' anos</b> e uma baita estrada no banco. O corpo cobra e o desgaste começa a pesar no dia a dia. Quer seguir treinando ou pendurar a prancheta com a cabeça erguida?',
   retire_seguir:'Seguir no comando', retire_encerrar:'Encerrar a carreira',
+ end_now:'Encerrar', end_now_tit:'Encerrar carreira agora?', end_now_txt:'Você vai pendurar a prancheta de vez e ver o balanço final da sua trajetória. Não dá pra voltar atrás. Tem certeza?', end_now_yes:'Sim, encerrar carreira', end_now_no:'Continuar treinando',
   fire_tit:'Você foi demitido', fire_txt:(c)=>'A diretoria do '+c+' perdeu a paciência. Mas currículo não some — sempre aparece outro projeto.',
   fire_buscar:'Buscar novo clube', fire_encerrar:'Encerrar a carreira',
   recomeco:(c,d)=>'Recomeço no '+c+' ('+d+')',
@@ -671,6 +675,7 @@ const I18N={
   card_story:'Story 9:16', card_sq:'Quadrado 1:1', card_tit:'Card da Carreira', full_tit:'Carreira Completa', sq_tit_modal:'Elenco',
   share_txt:(rank,tit,ac,v,j)=>'Minha carreira em O Míster: '+rank+' — '+tit+' títulos, '+ac+' acessos, '+v+' vitórias em '+j+' jogos. Consegue treinar melhor?',
   hist_item:(n,nome,rank)=>'<span>Carreira #'+n+' — '+nome+'</span><b style="color:var(--acc)">'+rank+'</b>',
+ view_hint:'Toque para ver os dados desta carreira', view_eyebrow:(n)=>'Carreira #'+n+' · arquivo',
   cdb:'🏆CdB', liberta_s:'🌎Liberta', ucl_s:'⭐UCL'
  }
 };
@@ -780,6 +785,7 @@ I18N.es={
   mc_continuar:'Continuar',
   retire_tit:'¿Fin de ciclo?', retire_txt:(a)=>'Ya tienes <b>'+a+' años</b> y un largo camino en el banquillo. El cuerpo pasa factura y el desgaste empieza a pesar. ¿Quieres seguir dirigiendo o colgar la pizarra con la cabeza alta?',
   retire_seguir:'Seguir al mando', retire_encerrar:'Terminar la carrera',
+ end_now:'Terminar', end_now_tit:'¿Terminar la carrera ahora?', end_now_txt:'Vas a colgar la pizarra para siempre y ver el balance final de tu trayectoria. No hay vuelta atrás. ¿Estás seguro?', end_now_yes:'Sí, terminar carrera', end_now_no:'Seguir dirigiendo',
   fire_tit:'Has sido despedido', fire_txt:(c)=>'La directiva del '+c+' perdió la paciencia. Pero el currículum no desaparece — siempre aparece otro proyecto.',
   fire_buscar:'Buscar nuevo club', fire_encerrar:'Terminar la carrera',
   recomeco:(c,d)=>'Reinicio en '+c+' ('+d+')',
@@ -818,6 +824,7 @@ I18N.es={
   card_story:'Story 9:16', card_sq:'Cuadrado 1:1', card_tit:'Tarjeta de Carrera', full_tit:'Carrera Completa', sq_tit_modal:'Plantilla',
   share_txt:(rank,tit,ac,v,j)=>'Mi carrera en El Míster: '+rank+' — '+tit+' títulos, '+ac+' ascensos, '+v+' victorias en '+j+' partidos. ¿Puedes dirigir mejor?',
   hist_item:(n,nome,rank)=>'<span>Carrera #'+n+' — '+nome+'</span><b style="color:var(--acc)">'+rank+'</b>',
+ view_hint:'Toca para ver los datos de esta carrera', view_eyebrow:(n)=>'Carrera #'+n+' · archivo',
   cdb:'🏆Copa', liberta_s:'🌎Liberta', ucl_s:'⭐UCL'
 };
 I18N.en={
@@ -926,6 +933,7 @@ I18N.en={
   mc_continuar:'Continue',
   retire_tit:'End of an era?', retire_txt:(a)=>'You are already <b>'+a+' years old</b> with a long road in the dugout. The body demands its due and the wear starts to weigh. Keep managing or hang up the clipboard with your head held high?',
   retire_seguir:'Stay in charge', retire_encerrar:'End the career',
+ end_now:'End', end_now_tit:'End career now?', end_now_txt:'You will hang up the clipboard for good and see the final summary of your journey. There is no going back. Are you sure?', end_now_yes:'Yes, end career', end_now_no:'Keep managing',
   fire_tit:'You were sacked', fire_txt:(c)=>'The board of '+c+' lost patience. But a CV does not vanish — another project always comes along.',
   fire_buscar:'Find a new club', fire_encerrar:'End the career',
   recomeco:(c,d)=>'Fresh start at '+c+' ('+d+')',
@@ -964,6 +972,7 @@ I18N.en={
   card_story:'Story 9:16', card_sq:'Square 1:1', card_tit:'Career Card', full_tit:'Full Career', sq_tit_modal:'Squad',
   share_txt:(rank,tit,ac,v,j)=>'My career in The Gaffer: '+rank+' — '+tit+' trophies, '+ac+' promotions, '+v+' wins in '+j+' games. Can you manage better?',
   hist_item:(n,nome,rank)=>'<span>Career #'+n+' — '+nome+'</span><b style="color:var(--acc)">'+rank+'</b>',
+ view_hint:'Tap to view this career\u2019s data', view_eyebrow:(n)=>'Career #'+n+' · archive',
   cdb:'🏆Cup', liberta_s:'🌎Liberta', ucl_s:'⭐UCL'
 };
 /* ES e EN preenchidos (mesmas chaves e assinaturas de função) */
@@ -1019,6 +1028,8 @@ const LENDAS=[
  ['Tite',92,84,88,82,80,90,5,5],['Felipão',84,80,88,82,72,96,5,4],
  ['Abel Ferreira',88,84,90,82,84,88,4,5],['Zagallo',88,84,86,82,80,92,5,5]
 ];
+/* técnico lendário secreto: 99 em tudo. Aparece ~1 vez a cada 100 técnicos exibidos no draft */
+const GORDIOLA=['Gordiola',99,99,99,99,99,99,5,5];
 /* clubes: [nome, divisão('A'/'B'/'C'/'D'), força] — 2026 real */
 const CLUBES=[
  // ---- SÉRIE A (20)
@@ -1287,7 +1298,22 @@ function renderHist(){
   box.innerHTML='<div class="lbl">'+t('hist_title')+'</div>';
   h.slice().reverse().forEach(c=>{const d=document.createElement('div');d.className='li';
     const rk=(c.rankIdx!=null)?rankName(c.rankIdx):c.rank;
-    d.innerHTML=t('hist_item',c.n,c.nome,rk);box.appendChild(d);});
+    d.innerHTML=t('hist_item',c.n,c.nome,rk);
+    if(c.snap){d.classList.add('clickable');d.style.cursor='pointer';d.title=t('view_hint');
+      const bEl=d.querySelector('b');if(bEl)bEl.insertAdjacentHTML('beforeend','<span style="color:var(--mut);margin-left:8px;font-weight:700">›</span>');
+      d.onclick=()=>viewCareer(c.n);}
+    box.appendChild(d);});
+}
+/* abre uma carreira antiga (somente leitura) restaurando o snapshot salvo */
+function viewCareer(n){
+  const h=store('mister_br_hist')||[];
+  const c=h.find(x=>x.n===n&&x.snap);
+  if(!c||!c.snap)return;
+  saveProgress();                       // preserva o save em andamento antes de trocar G
+  let snap=null;try{snap=JSON.parse(JSON.stringify(c.snap));}catch(e){return;}
+  snap._viewing=true;                   // marca como visualização (não sobrescreve o save)
+  G=snap;
+  renderOver();show('scr-over');
 }
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0);}
 function closeModal(id){$(id).classList.remove('open');}
@@ -1308,6 +1334,10 @@ function attrVal(l,k){return l[{TAT:1,ATA:2,DEF:3,MER:4,JOV:5,MOT:6,GES:7,ADA:8}
 function pick3(){
   const pool=LENDAS.slice(),out=[];
   for(let i=0;i<3;i++){const idx=Math.floor(Math.random()*pool.length);out.push(pool.splice(idx,1)[0]);}
+  // 1 técnico a cada 100 exibidos é o Gordiola (99 em tudo); no máximo um por rodada
+  for(let i=0;i<out.length;i++){
+    if(Math.random()<0.01){out[i]=GORDIOLA;break;}
+  }
   return out;
 }
 function spinRound(){
@@ -1329,8 +1359,10 @@ function landRound(){
   const box=$('draftOpts');box.innerHTML='';
   draft.opts.forEach((o,idx)=>{
     const card=document.createElement('div');card.className='dopt';
+    const isGord=o.lenda[0]==='Gordiola';
+    if(isGord){card.classList.add('gord');card.style.border='2px solid var(--acc)';card.style.boxShadow='0 0 14px rgba(212,175,55,.5)';}
     const val=cfg.dif==='pro'?'?':(a.star?'★'.repeat(o.val):o.val);
-    card.innerHTML='<div class="dopt-nm">'+o.lenda[0]+'</div><div class="dopt-val'+(a.star?' stars':'')+'" style="color:'+a.c+'">'+val+'</div>';
+    card.innerHTML='<div class="dopt-nm">'+(isGord?'⭐ ':'')+o.lenda[0]+'</div><div class="dopt-val'+(a.star?' stars':'')+'" style="color:'+(isGord?'var(--acc)':a.c)+'">'+val+'</div>';
     card.onclick=()=>chooseOpt(idx);
     box.appendChild(card);
   });
@@ -2088,18 +2120,31 @@ function rankFor(sc){
 }
 function rankName(idx){return tt('ranks_n')[idx];}
 function rankQuote(idx){return tt('ranks_q')[idx];}
+function confirmEndCareer(){
+  if(!G||G.over)return;
+  NEXT=null;
+  evShow('🏁',t('end_now_tit'),t('end_now_txt'),[
+    {l:t('end_now_no'),hold:true,f:()=>{}},
+    {l:t('end_now_yes'),ghost:1,hold:true,f:()=>endCareer('aposentadoria')}
+  ]);
+}
 function endCareer(motivo){
   const sc=careerScore();const idx=rankFor(sc);
   G.rankIdx=idx;G.rank=rankName(idx);G.quote=rankQuote(idx);G.score=sc;G.motivo=motivo;
   G.over=true;
   const hist=store('mister_br_hist')||[];
-  hist.push({n:G.careerN,nome:G.nome,rankIdx:idx,rank:G.rank,tit:titTot(),j:G.j});
+  let snap=null;try{snap=JSON.parse(JSON.stringify(G));}catch(e){}
+  hist.push({n:G.careerN,nome:G.nome,rankIdx:idx,rank:G.rank,tit:titTot(),j:G.j,snap});
+  // mantém no máximo os 30 snapshots mais recentes para não estourar o localStorage
+  const withSnap=hist.filter(c=>c.snap);
+  if(withSnap.length>30){const cut=withSnap.length-30;let n=0;for(const c of hist){if(c.snap&&n<cut){delete c.snap;n++;}}}
   store('mister_br_hist',hist);
   clearProgress();          // carreira concluída: remove o save em andamento
   renderOver();show('scr-over');
 }
 function renderOver(){
   const idx=(G.rankIdx!=null)?G.rankIdx:0;
+  $('ovEyebrow').textContent=G._viewing?t('view_eyebrow',G.careerN):t('eyebrow_fim');
   $('ovRank').textContent=rankName(idx);$('ovQuote').textContent='"'+rankQuote(idx)+'"';
   $('ovMeta').innerHTML=t('metaline',filoName(G.filo),G.clubes.length,G.seasons.length,G.careerN).map(m=>'<span>'+m+'</span>').join('');
   const T=tt('tot');
