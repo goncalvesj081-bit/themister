@@ -164,9 +164,9 @@ svg text{font-family:'Space Grotesk','Segoe UI',sans-serif}
 .mv{max-width:460px;text-align:left;padding:0;overflow:hidden}
 .mv-comp{background:linear-gradient(90deg,var(--acc),var(--acc2));border-bottom:1px solid transparent;padding:12px 14px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#fff;font-weight:700;text-align:center}
 .mv-board{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;padding:18px 14px 10px;background:rgba(8,16,38,.5)}
-.mv-side{text-align:center}
-.mv-nm{font-family:var(--font-disp);font-weight:400;font-size:20px;text-transform:uppercase;line-height:1.05}
-.mv-gg{display:flex;align-items:center;gap:8px;font-family:var(--font-disp);font-size:50px;font-weight:400}
+ .mv-side{text-align:center;min-width:0}
+ .mv-nm{font-family:var(--font-disp);font-weight:400;font-size:20px;text-transform:uppercase;line-height:1.05;white-space:nowrap}
+ .mv-gg{display:flex;align-items:center;gap:6px;font-family:var(--font-disp);font-size:clamp(36px,11vw,50px);font-weight:400}
 .mv-gg i{font-size:16px;color:var(--mut);font-style:normal}
 .mv-gg span{min-width:38px;text-align:center}
 .mv-clock{display:flex;align-items:center;gap:8px;padding:0 14px 10px;background:rgba(8,16,38,.5)}
@@ -621,7 +621,7 @@ const I18N={
   mv_tecnico:'🎯 Técnico ', mv_intervalo:'— Intervalo —',
   mv_events:['🟨 Cartão amarelo','🧤 Defensão do goleiro','↗️ Chutou pra fora','🚩 Impedimento','↪️ Escanteio perigoso'],
   mv_penaltis:'— Pênaltis! —', mv_disp_pen:'Disputa de pênaltis',
-  mv_fim:(win,meu,pl,riv)=>(win?'🏆 ':'💔 ')+'Fim de jogo: '+meu+' '+pl+' '+riv,
+  mv_fim:(ico,meu,pl,riv)=>ico+' Fim de jogo: '+meu+' '+pl+' '+riv,
   mv_levantar:'🏆 Levantar a taça', mv_pen_txt:(a,b)=>' ('+a+'-'+b+' nos pênaltis)',
   mc_j:(v)=>v+' jogos no banco', mc_j_txt:(v)=>'<b>'+v+' partidas</b> comandadas na carreira.'+(v>=700?' Longevidade de lenda.':''),
   mc_t:(v)=>v+' títulos na carreira', mc_t_txt:(v)=>'Você chegou a <b>'+v+' taças</b> como treinador.',
@@ -644,6 +644,8 @@ const I18N={
   trof:{ucl:'Champions League',lib:'Libertadores',A:'Título da liga',B:'Série B',C:'Série C',D:'Série D',copa:'Copa do Brasil',intl:'Títulos nac. (ext.)',ac:'Acessos'},
   season_camp:(l)=>'🏆 Campeão '+l, season_pos:(p,l)=>p+'º na '+l,
   season_conf:(d)=>' · <span style="color:'+(d>0?'var(--ok)':'var(--bad)')+'">'+(d>0?'▲+':'▼')+d+' confiança</span>',
+ season_pres:()=>'<span style="color:var(--bad)">pressão da torcida</span>',
+ pres_tag:(l)=>'Pressão '+({1:'moderada',2:'alta',3:'máxima'}[l]),
   season_meta_ok:' · 🎯 meta batida', season_meta_fail:' · ⚠️ meta falhada',
   season_acesso:(d)=>'⬆️ ACESSO à '+d, season_rebaix:(d)=>'⬇️ REBAIXADO à '+d,
   cel_acesso:(d)=>'ACESSO À '+d.toUpperCase(), cel_acesso_sub:(c)=>c+' subiu de divisão!',
@@ -759,7 +761,7 @@ I18N.es={
   mv_tecnico:'🎯 El técnico ', mv_intervalo:'— Descanso —',
   mv_events:['🟨 Tarjeta amarilla','🧤 Paradón del portero','↗   Disparo fuera','🚩 Fuera de juego','↪️ Córner peligroso'],
   mv_penaltis:'— ¡Penales! —', mv_disp_pen:'Tanda de penales',
-  mv_fim:(win,meu,pl,riv)=>(win?'🏆 ':'💔 ')+'Final del partido: '+meu+' '+pl+' '+riv,
+  mv_fim:(ico,meu,pl,riv)=>ico+' Final del partido: '+meu+' '+pl+' '+riv,
   mv_levantar:'🏆 Levantar la copa', mv_pen_txt:(a,b)=>' ('+a+'-'+b+' en penales)',
   mc_j:(v)=>v+' partidos dirigidos', mc_j_txt:(v)=>'<b>'+v+' partidos</b> dirigidos en tu carrera.'+(v>=700?' Longevidad de leyenda.':''),
   mc_t:(v)=>v+' títulos en la carrera', mc_t_txt:(v)=>'Llegaste a <b>'+v+' copas</b> como entrenador.',
@@ -782,6 +784,8 @@ I18N.es={
   trof:{ucl:'Champions League',lib:'Libertadores',A:'Título de liga',B:'Serie B',C:'Serie C',D:'Serie D',copa:'Copa de Brasil',intl:'Tít. nac. (ext.)',ac:'Ascensos'},
   season_camp:(l)=>'🏆 Campeón '+l, season_pos:(p,l)=>p+'º en '+l,
   season_conf:(d)=>' · <span style="color:'+(d>0?'var(--ok)':'var(--bad)')+'">'+(d>0?'▲+':'▼')+d+' confianza</span>',
+ season_pres:()=>'<span style="color:var(--bad)">presión de la afición</span>',
+ pres_tag:(l)=>'Presión '+({1:'moderada',2:'alta',3:'máxima'}[l]),
   season_meta_ok:' · 🎯 meta cumplida', season_meta_fail:' · ⚠️ meta fallada',
   season_acesso:(d)=>'⬆️ ASCENSO a '+d, season_rebaix:(d)=>'⬇️ DESCENSO a '+d,
   cel_acesso:(d)=>'ASCENSO A '+d.toUpperCase(), cel_acesso_sub:(c)=>'¡'+c+' subió de categoría!',
@@ -896,7 +900,7 @@ I18N.en={
   mv_tecnico:'🎯 The manager ', mv_intervalo:'— Half-time —',
   mv_events:['🟨 Yellow card','🧤 Great goalkeeper save','↗️ Shot wide','🚩 Offside','↪️ Dangerous corner'],
   mv_penaltis:'— Penalties! —', mv_disp_pen:'Penalty shootout',
-  mv_fim:(win,meu,pl,riv)=>(win?'🏆 ':'💔 ')+'Full time: '+meu+' '+pl+' '+riv,
+  mv_fim:(ico,meu,pl,riv)=>ico+' Full time: '+meu+' '+pl+' '+riv,
   mv_levantar:'🏆 Lift the trophy', mv_pen_txt:(a,b)=>' ('+a+'-'+b+' on penalties)',
   mc_j:(v)=>v+' games in the dugout', mc_j_txt:(v)=>'<b>'+v+' matches</b> managed in your career.'+(v>=700?' Legendary longevity.':''),
   mc_t:(v)=>v+' career trophies', mc_t_txt:(v)=>'You reached <b>'+v+' trophies</b> as a manager.',
@@ -919,6 +923,8 @@ I18N.en={
   trof:{ucl:'Champions League',lib:'Libertadores',A:'League title',B:'Division B',C:'Division C',D:'Division D',copa:'Copa do Brasil',intl:'Nat. titles (abroad)',ac:'Promotions'},
   season_camp:(l)=>'🏆 Champions of '+l, season_pos:(p,l)=>p+'th in '+l,
   season_conf:(d)=>' · <span style="color:'+(d>0?'var(--ok)':'var(--bad)')+'">'+(d>0?'▲+':'▼')+d+' confidence</span>',
+ season_pres:()=>'<span style="color:var(--bad)">fan pressure</span>',
+ pres_tag:(l)=>'Pressure '+({1:'moderate',2:'high',3:'max'}[l]),
   season_meta_ok:' · 🎯 target hit', season_meta_fail:' · ⚠️ target missed',
   season_acesso:(d)=>'⬆️ PROMOTED to '+d, season_rebaix:(d)=>'⬇️ RELEGATED to '+d,
   cel_acesso:(d)=>'PROMOTED TO '+d.toUpperCase(), cel_acesso_sub:(c)=>c+' moved up a division!',
@@ -1057,7 +1063,7 @@ const LIGAS={
  GER:{liga:'Bundesliga (GER)',clubes:[['Bayern München',90],['Bayer Leverkusen',85],['Borussia Dortmund',84],['RB Leipzig',83],['Eintracht Frankfurt',81],['VfB Stuttgart',80],['Freiburg',77],['Wolfsburg',76],["Borussia M'gladbach",75],['Werder Bremen',74],['Hoffenheim',74],['Mainz',74],['Augsburg',72],['Union Berlin',72],['Köln',71],['St. Pauli',70],['Hamburger SV',70],['Heidenheim',68]]},
  ITA:{liga:'Serie A (ITA)',clubes:[['Inter',88],['Napoli',87],['Milan',84],['Juventus',84],['Atalanta',84],['Roma',82],['Lazio',80],['Fiorentina',79],['Bologna',79],['Como',75],['Torino',74],['Udinese',73],['Genoa',72],['Cagliari',71],['Parma',71],['Sassuolo',70],['Verona',69],['Lecce',69],['Cremonese',68],['Pisa',67]]},
  FRA:{liga:'Ligue 1 (FRA)',clubes:[['Paris Saint-Germain',90],['Marseille',82],['Monaco',82],['Lille',80],['Lyon',79],['Nice',78],['Lens',77],['Rennes',76],['Strasbourg',75],['Brest',74],['Toulouse',73],['Nantes',71],['Auxerre',70],['Angers',68],['Le Havre',68],['Paris FC',68],['Lorient',67],['Metz',66]]},
- POR:{liga:'Primeira Liga (POR)',clubes:[['Sporting CP',82],['Benfica',82],['Porto',81],['Braga',78],['Vitória SC',73],['Famalicão',68],['Moreirense',68],['Gil Vicente',67],['Santa Clara',66],['Arouca',65],['Casa Pia',65],['Estoril',65],['Rio Ave',65],['Nacional-POR',64],['Estrela',63],['AVS',62]]},
+ POR:{liga:'Primeira Liga (POR)',clubes:[['Sporting CP',82],['Benfica',82],['Porto',81],['Braga',78],['Vitória SC',73],['Famalic  o',68],['Moreirense',68],['Gil Vicente',67],['Santa Clara',66],['Arouca',65],['Casa Pia',65],['Estoril',65],['Rio Ave',65],['Nacional-POR',64],['Estrela',63],['AVS',62]]},
  NED:{liga:'Eredivisie (NED)',clubes:[['PSV',81],['Ajax',80],['Feyenoord',80],['AZ Alkmaar',76],['Twente',74],['Utrecht',73],['Go Ahead Eagles',68],['Heerenveen',67],['NEC',67],['Sparta Rotterdam',66],['Fortuna Sittard',65],['Groningen',65],['Zwolle',64],['Heracles',63]]},
  BEL:{liga:'Pro League (BEL)',clubes:[['Club Brugge',79],['Union Saint-Gilloise',78],['Anderlecht',76],['Genk',76],['Antwerp',74],['Gent',73],['Standard Liège',71],['Charleroi',69],['Cercle Brugge',68],['Mechelen',67],['OH Leuven',65],['Westerlo',64]]},
  TUR:{liga:'Süper Lig (TUR)',clubes:[['Galatasaray',82],['Fenerbahçe',81],['Beşiktaş',78],['Trabzonspor',76],['Başakşehir',73],['Samsunspor',70],['Eyüpspor',68],['Konyaspor',67],['Antalyaspor',67],['Kasımpaşa',66],['Rizespor',65],['Gaziantep',65]]},
@@ -1354,7 +1360,13 @@ function updateHub(){
   $('boardPct').textContent=G.board+'%';
   $('hbStatus').innerHTML=boardStatus();
   if(G.mode==='nt'&&G.nt)$('expPill').textContent=t('nt_hub_meta',ntCompName(tournamentOf(G.year,G.nt.conf)));
-  else $('expPill').textContent=isIntl(G.club)?(continente(G.club)==='EUR'?t('pill_intl_eur'):t('pill_intl_sam')):expectByDiv(G.club[1]);
+  else $('expPill').textContent=(isIntl(G.club)?(continente(G.club)==='EUR'?t('pill_intl_eur'):t('pill_intl_sam')):expectByDiv(G.club[1]))+pressTag();
+}
+/* nível de pressão da torcida/diretoria conforme o tamanho do clube */
+function pressTag(){
+  if(G.mode==='nt')return '';
+  const st=clubStature();if(st<1)return '';
+  return ' · '+t('pres_tag',st)+' '+'●'.repeat(st)+'○'.repeat(3-st);
 }
 /* narrativa dinâmica: reage ao trabalho do treinador citando torcida/imprensa/diretoria */
 function boardStatus(){
@@ -1365,6 +1377,15 @@ function boardStatus(){
 function addHonra(n,pts){G.honras[n]=(G.honras[n]||0)+1;G.honras._pts=(G.honras._pts||0)+(pts||4);}
 function logSeason(html){const log=$('seasonLog');if(log.querySelector('.small'))log.innerHTML='';
   const d=document.createElement('div');d.className='li';d.innerHTML=html;log.prepend(d);}
+/* --- pressão por tamanho do clube: gigantes exigem títulos p/ manter a confiança --- */
+function clubStature(){
+  if(isIntl&&isIntl(G.club)&&G.club[2]>=82)return 3;
+  const o=G.club[2],dv=G.club[1];
+  if(dv==='A'&&o>=86)return 3;   // gigante (exige títulos)
+  if(dv==='A'&&o>=79)return 2;   // grande (exige protagonismo)
+  if((dv==='A'||dv==='B')&&o>=71)return 1; // tradicional
+  return 0;                       // sem pressão de elite
+}
 /* --- força / posição --- */
 function coachEff(){return (G.ovr-70)*0.30;}
 function effStrength(club){return club[2]+coachEff()+(Math.random()*15-7.5);}
@@ -1660,11 +1681,24 @@ function winProbFromGap(gap){return clamp(0.5+gap/120,0.32,0.68);}
 
 /* ============ PARTIDA AO VIVO ============ */
 let M=null;const TICK=120;
+/* ícone do resultado: 🥈 só em finais; ✕ em grupos/eliminatórias */
+function isFinalEv(ev){return !!(ev&&((ev.phase&&ev.phase.n==='final')||ev.tipo));}
+function lossIco(ev){return isFinalEv(ev)?'🥈':'✕';}
+/* encolhe o nome do time para caber em uma única linha */
+function fitName(el){
+  if(!el)return;el.style.fontSize='';
+  let fs=20;el.style.fontSize=fs+'px';
+  requestAnimationFrame(()=>{
+    let guard=0;
+    while(el.scrollWidth>el.clientWidth&&fs>10&&guard++<40){fs-=1;el.style.fontSize=fs+'px';}
+  });
+}
 function startMatch(ev){
   const mc=matchChances(ev.rivalForca,ev.myForca);
   M={ev,meu:ev.meu,rival:ev.rival,min:0,gh:0,ga:0,atk:1,def:1,baseMy:mc.my,baseRi:mc.ri,gap:mc.gap,ended:false,stops:{}};
   $('mvComp').textContent=ev.compLabel||(t('mv_final')+ev.comp);
   $('mvHome').textContent=M.meu;$('mvAway').textContent=M.rival;
+  fitName($('mvHome'));fitName($('mvAway'));
   $('mvGh').textContent='0';$('mvGa').textContent='0';
   $('mvMin').textContent="0'";$('mvFill').style.width='0%';
   $('mvFeed').innerHTML='';$('mvAct').innerHTML='';
@@ -1736,12 +1770,14 @@ function penShootout(){
   const wp=winProbFromGap(M.gap);
   const kick=()=>{
     round++;
-    const meP=Math.random()<0.74+(wp-0.5)*0.22, riP=Math.random()<0.74-(wp-0.5)*0.22;
+    let meP=Math.random()<0.72+(wp-0.5)*0.22, riP=Math.random()<0.72-(wp-0.5)*0.22;
+    // morte súbita longa: após muitas rodadas empatadas, força um desempate limpo
+    if(round>=10&&(pm+(meP?1:0))===(pr+(riP?1:0))){ if(Math.random()<wp){meP=true;riP=false;}else{meP=false;riP=true;} }
     if(meP)pm++; if(riP)pr++;
     feed(null,null,'🥅 '+M.meu+': '+(meP?'✅':'❌')+'  ·  '+M.rival+': '+(riP?'✅':'❌')+'  ('+pm+'-'+pr+')');
+    // decidido só quando há vantagem depois de cobranças iguais (best of 5 -> morte súbita)
     const decided=(round>=5&&pm!==pr);
-    if(decided||round>=8){const win=pm>pr||(pm===pr&&Math.random()<wp);
-      showMatchResult(win,[win?Math.max(pm,pr):Math.min(pm,pr),win?Math.min(pm,pr):Math.max(pm,pr)]);}
+    if(decided){const win=pm>pr;showMatchResult(win,[win?pm:pr,win?pr:pm]);}
     else setTimeout(kick,520);
   };
   setTimeout(kick,500);
@@ -1749,7 +1785,7 @@ function penShootout(){
 function showMatchResult(win,pen){
   const placar=M.gh+' x '+M.ga+(pen?t('mv_pen_txt',pen[0],pen[1]):'');
   if(win===null)feed(null,null,t('nt_mv_draw',M.meu,placar,M.rival));
-  else feed(null,null,t('mv_fim',win,M.meu,placar,M.rival));
+  else feed(null,null,t('mv_fim',win?'🏆':lossIco(M.ev),M.meu,placar,M.rival));
   const act=$('mvAct');act.innerHTML='';
   const b=document.createElement('button');b.className='btn mini';
   b.textContent=(M.ev&&M.ev.matchBtn)?M.ev.matchBtn(win):(win?t('mv_levantar'):t('fin_continuar'));
@@ -1781,7 +1817,7 @@ function playInstant(ev){
   const tit=ev.resultTit?ev.resultTit(ev):t('fin_tit',ev.comp);
   const body=ev.resultTxt?ev.resultTxt(win,placar,ev):('<div class="score">'+ev.meu+' '+placar+' '+ev.rival+'</div>'+(win?t('fin_campeao',ev.comp):t('fin_vice')));
   const btnL=ev.resultBtn?ev.resultBtn(win):(win?t('fin_comemorar'):t('fin_continuar'));
-  const ico=win===true?'🏆':win===null?'⚖️':'💔';
+  const ico=win===true?'🏆':win===null?'⚖️':lossIco(ev);
   evShow(ico,tit,body,[{l:btnL,hold:true,f:()=>finishMatch(ev,win)}]);
 }
 /* ============ RESULTADO DA FINAL (comum) ============ */
@@ -1886,6 +1922,18 @@ function resolveSeason(){
     if(!celTitle){celTitle=t('cel_acesso',DIVNOME[novo]);celSub=t('cel_acesso_sub',G.club[0]);}}
   else if(s.rebaix){G.rebaix++;const novo=DIVS[clamp(DIVIDX(div)-1,0,3)];G.club[1]=novo;G.club[2]=clamp(G.club[2]-R(2,5),42,95);
     movedTxt=t('season_rebaix',DIVNOME[novo]);G.board=clamp(G.board-14,0,100);syncSquad();}
+  // === PRESSÃO POR TAMANHO DO CLUBE: em gigantes, só títulos seguram a confiança ===
+  let presTxt='';
+  const st=clubStature();
+  const wonSilver=s.campeao||s.t_copa||s.t_liberta||s.t_champions;
+  if(st>=1&&!wonSilver){
+    const flopou=s.pos>=meta; // não brigou pelo topo
+    let pen=0;
+    if(st===3)pen=flopou?14:8;        // gigante: temporada sem taça pesa muito
+    else if(st===2)pen=flopou?8:3;    // grande: cobrança forte
+    else if(st===1)pen=flopou?4:0;    // tradicional: só pune campanha ruim
+    if(pen>0){G.board=clamp(G.board-pen,0,100);presTxt=' · '+t('season_pres');}
+  }
   let d=0;
   if(s.campeao)d+=1; else if(s.acesso)d+=1; else if(s.pos<meta)d+=1;
   if(s.rebaix)d-=2; if(s.pos>curLeague().length-3&&!s.rebaix)d-=1;
@@ -1898,7 +1946,7 @@ function resolveSeason(){
   // variação de confiança da temporada: mostra o peso das decisões do treinador
   const dBoard=G.board-(G._boardStart!=null?G._boardStart:G.board);
   const confTxt=dBoard!==0?t('season_conf',dBoard):'';
-  logSeason('<span>'+G.year+' · '+G.club[0]+'</span><b>'+posTxt+(movedTxt?' · '+movedTxt:'')+demTxt+(s.t_copa?' · '+t('cdb'):'')+(s.t_liberta?' · '+t('liberta_s'):'')+(s.t_champions?' · '+t('ucl_s'):'')+confTxt+'</b>');
+  logSeason('<span>'+G.year+' · '+G.club[0]+'</span><b>'+posTxt+(movedTxt?' · '+movedTxt:'')+demTxt+(s.t_copa?' · '+t('cdb'):'')+(s.t_liberta?' · '+t('liberta_s'):'')+(s.t_champions?' · '+t('ucl_s'):'')+presTxt+confTxt+'</b>');
   marcoQueue=[];collectMarcos();
   G.year++;G.age++;updateHub();
   // comemoração de título/acesso e então segue pros marcos + fim do turno
@@ -2438,7 +2486,7 @@ Object.assign(I18N.es,{
   nt_cel_world:'¡CAMPEÓN DEL MUNDO!',
   nt_cel_conf:(comp)=>'¡CAMPEÓN DE LA '+comp.toUpperCase()+'!',
   nt_wl_champ:(nm,comp)=>nm+' campeón · '+comp,
-  nt_wl_out:(comp,st)=>comp+' · eliminado ('+st+')',
+  nt_wl_out:(comp,st)=>comp+'    eliminado ('+st+')',
   nt_out_tit:'Fin del camino en el torneo',
   nt_out_txt:(comp,st)=>'La campaña en la '+comp+' terminó en la fase: <b>'+st+'</b>.',
   nt_hon_world:'Campeón del Mundo',nt_hon_euro:'Campeón de la Eurocopa',nt_hon_copa:'Campeón de la Copa América',
